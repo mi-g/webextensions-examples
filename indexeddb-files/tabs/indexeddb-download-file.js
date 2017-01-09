@@ -137,8 +137,9 @@ document.querySelector("#create-file").addEventListener("click", () => {
 function readFile(file) {
     const fileRequest = file.getFile();
     fileRequest.onsuccess = () => {
+      let file = fileRequest.result;
       // Create an ObjectURL from the file blob data.
-      const fileURL = URL.createObjectURL(fileRequest.result);
+      const fileURL = URL.createObjectURL(file);
       console.info("fileURL",fileURL);
       // Create a link that can be used to download the file.
       document.querySelector("#step2").style.display = "block";
@@ -150,6 +151,13 @@ function readFile(file) {
         download(fileURL,file.name);
         return false;
       };
+
+        // read file as array buffer
+        var fileReader = new FileReader();
+        fileReader.readAsArrayBuffer(file);
+        fileReader.onloadend = () => {
+            console.info("file read",fileReader.result);
+        }
 
     };
     fileRequest.onerror = () => {
