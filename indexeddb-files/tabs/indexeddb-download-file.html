@@ -11,11 +11,11 @@
     </style>
   </head>
   <body>
-    <h1>Create mutable a file using the MutableFile API, and then download this file</h1>
+    <h1>Create a mutable file using the MutableFile API, then download this file</h1>
 
     <hr/>
 
-    <h1>1. Create temporary files</h1>
+    <h1>1. Create temporary file</h1>
 
     <div>
       <input id="file-size" placeholder="file size in bytes" type="number">
@@ -24,30 +24,12 @@
 
     <hr/>
 
-      <!--
-    <div>
-      <button id="save-data">Save Data into the opened MutableFile</button><br/>
+    <div id="step2" style="display: none">
+
+    <h1>2. Retrieve file</h1>
+        <div id="file-link-text"></div>
+        <a id="file-link" href="#"></a>
     </div>
-
-    <hr/>
-
-    <div>
-      <input id="filename-to-save" placeholder="filename to save...">
-      <button id="persist-file">Persist the opened MutableFile into an IndexedDB key</button>
-    </div>
-    <div>
-
-    <h1>2. Retrieve persisted files</h1>
-
-    <button id="list-saved-files">List all the saved files</button>
-
-    <hr/>
-
-    <div>
-      <input id="filename-to-read" placeholder="filename to read...">
-      <button id="read-file">Read a MutableFile by IndexedDB key</button>
-    </div>
--->
 
     <hr/>
 

@@ -37,10 +37,10 @@ function clear() {
 
         let clearReq = objectStore.clear();
         clearReq.onsuccess = () => {
-            console.info("DB cleared");
+            dbLog("DB cleared");
         }
         clearReq.onerror = () => {
-            console.info("DB clear failure",clearReq.error.message);
+            dbLog("DB clear failure",clearReq.error.message);
         }
     };
 }
@@ -127,80 +127,48 @@ document.querySelector("#create-file").addEventListener("click", () => {
             const request = objectStore.put(tempFile, filename);
             request.onsuccess = function(event) {
                 dbLog(`tempFile has been stored into IndexedDB as "${filename}"`);
-                //readFile(filename);
-                /*
-                var r = objectStore.get(filename);
-                r.onsuccess = (evt) => {
-                    const file = evt.target.result;
-                    if (!file) {
-                        dbLog("File ${filename} not found.");
-                        return;
-                    }
-                    let reader = new FileReader();
-                    reader.addEventListener("load", function () {
-                        console.info("dataurl",reader.result);
-                    }, false);
-                    reader.readAsDataURL(file);
-                  */
-                    /*
-                    const {name, size, type, lastModifiedDate} = file;
-                    dbLog(`Read ${filename}: ${JSON.stringify({name, size, type, lastModifiedDate})}`);
-                    console.info("got file",filename,evt.target);
-                    const fileURL = URL.createObjectURL(file);
-                    console.info("URL",fileURL);
-                    */
-                //}
+                readFile(tempFile);
             };
         }
     });
   };
 });
 
-/*
-function readFile(filename) {
-  const transaction = db.transaction(["tempFiles"]);
-  const objectStore = transaction.objectStore("tempFiles");
-
-  const dbRequest = objectStore.get(filename);
-  dbRequest.onsuccess = (evt) => {
-    const file = evt.target.result;
-    if (!file) {
-      dbLog("File ${filename} not found.");
-      return;
-    }
-
-    // Read and print the file metadata.
-    const {name, size, type, lastModifiedDate} = file;
-    dbLog(`Read ${filename}: ${JSON.stringify({name, size, type, lastModifiedDate})}`);
-
-    // If the file is a known mimetype read and print its content,
-    // e.g. text, html, json and javascript files and images.
-    if (type.startsWith("text/") || type.endsWith("/json") || type.endsWith("/javascript")) {
-      let reader = new FileReader();
-      reader.addEventListener("loadend", () => {
-        dbLog(`File ${filename} content:\n${reader.result}`);
-      });
-      reader.readAsText(file);
-    } else if (type.startsWith("image/")) {
+function readFile(file) {
+    const fileRequest = file.getFile();
+    fileRequest.onsuccess = () => {
       // Create an ObjectURL from the file blob data.
-      const imgURL = URL.createObjectURL(file);
-      console.info("imgURL",imgURL);
+      const fileURL = URL.createObjectURL(fileRequest.result);
+      console.info("fileURL",fileURL);
+      // Create a link that can be used to download the file.
+      document.querySelector("#step2").style.display = "block";
+      document.querySelector("#file-link-text").textContent = fileURL;
+      const linkEl = document.querySelector("#file-link");
+      //linkEl.href = fileURL;
+      linkEl.textContent = file.name;
+      linkEl.onclick = () => {
+        download(fileURL,file.name);
+        return false;
+      };
 
-    } else {
-        console.info("unhandled type",file.type);
-          let reader = new FileReader();
-          reader.addEventListener("loadend", () => {
-            dbLog(`File ${filename} content:\n${reader.result}`);
-          });
-          reader.readAsDataURL(file);
-    }
-  };
-  dbRequest.onerror = (evt) => {
-    dbLog(`ERROR reading ${filename}: ${evt.target.error.message}`);
-  };
-
+    };
+    fileRequest.onerror = () => {
+      dbLog(`ERROR on reading the persisted mutable file: ${fileRequest.error.message}`);
+    };
 }
-*/
+
+function download(url,filename) {
+    browser.downloads.download({
+        url: url,
+        filename: filename
+    },function(id) {
+        if(!id) {
+            dbLog(`Failed download: ${browser.runtime.lastError}`);
+            return;
+        }
+        return true;
+    });
+}
 
 function generateFile(file,totalSize,callback) {
     const chunkSize = 1024*1024;
