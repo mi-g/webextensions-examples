@@ -12,7 +12,7 @@ const dbLog = (...args) => {
 
 // IndexedDB initializations.
 var db;
-const dbReq = indexedDB.open("tempFilesDB", 3);
+const dbReq = indexedDB.open("tempFilesDB", {version: 1, storage: "persistent"});
 
 dbReq.onerror = evt => {
   dbLog(`ERROR: Fail to open indexedDB 'tempFilesDB' db: ${evt.target.error.message}`);
@@ -199,7 +199,9 @@ function generateFile(file,totalSize,callback) {
             if(i+3<bytesToWrite)
                 buffer[i+3] = index & 0xff;
         }
-        console.info("writeChunk",size,"/",totalSize,"=>",buffer.subarray(0,4),"...");
+        console.info("writeChunk",size,"/",totalSize,
+                     "("+Math.round(size*100/totalSize)+"%)",
+                     "=>",buffer.subarray(0,4),"...");
         size += bytesToWrite;
         const saveDataReq = lockedFile.append(buffer.buffer);
         saveDataReq.onsuccess = () => {
